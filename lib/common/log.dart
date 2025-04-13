@@ -1,11 +1,42 @@
+import 'package:flutter_app/common/extension.dart';
+import 'package:flutter_app/common/utils.dart';
 import 'package:flutter_logs/flutter_logs.dart';
+import 'package:http/http.dart';
 
-Future<void> logInfo<T>(T type) async {
-  FlutterLogs.logInfo(type.runtimeType.toString(), 'info', type.toString());
+class LoggerInfo<T> {
+  final T data;
+  final String message;
+
+  LoggerInfo(this.data, this.message);
+
+  String get dataToString {
+    if (data.runtimeType == BaseResponse) {
+      final t = data as BaseResponse;
+      return t.string();
+    }
+    if (data.runtimeType == Response) {
+      final t = data as Response;
+      return t.string();
+    }
+    return data.toString();
+  }
+
+  @override
+  String toString() {
+    return 'LoggerInfo{data: $dataToString, message: $message}';
+  }
 }
 
-Future<void> logError<T>(T type) async {
-  FlutterLogs.logError(type.runtimeType.toString(), 'error', type.toString());
+Future<void> logInfo<T>(LoggerInfo<T> info) async {
+  FlutterLogs.logInfo("${info.message}  info: ",
+      info.data.runtimeType.toString(), info.dataToString);
+  logger(info.toString());
+}
+
+Future<void> logError<T>(LoggerInfo<T> err) async {
+  FlutterLogs.logError("${err.message}  error: ",
+      err.data.runtimeType.toString(), err.data.toString());
+  logger(err.toString());
 }
 
 class Logger {

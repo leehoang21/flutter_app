@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_app/common/local_storage.dart';
-import 'package:flutter_app/common/log.dart';
 import 'package:flutter_app/service/tracsaction_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -20,11 +19,6 @@ class Service {
   Service(http.Client client, this.localStorage, this.notificationConfig) {
     authService = AuthService(client, localStorage);
     transactionService = TransactionService(client, localStorage);
-    final user = localStorage.readUser;
-    final trans = localStorage.readTransactions;
-    localStorage.removeUser();
-    logInfo(user);
-    logInfo(trans);
   }
 
   static Future<SecurityContext> get _globalContext async {

@@ -34,7 +34,10 @@ class TransactionService {
         uri,
         headers: headers,
       );
+      logInfo(LoggerInfo(response.request, "getTransactionHistory request"));
+      logInfo(LoggerInfo(headers, "getTransactionHistory request header "));
       if (response.statusCode == 200 || response.statusCode == 201) {
+        logInfo(LoggerInfo(response, "getTransactionHistory response"));
         final data = json.decode(response.body);
         final transactions = (data['transactions'] as List)
             .map((transaction) => TransactionModel.fromJson(transaction))
@@ -42,6 +45,7 @@ class TransactionService {
         localStorage.writeTransactions(transactions);
         return (transactions, null);
       } else {
+        logError(LoggerInfo(response, "getTransactionHistory response"));
         final e = ErrorModel.fromRawJson(response.body);
         if (e.message == "Token không hợp lệ") {
           localStorage.removeUser();
@@ -54,14 +58,13 @@ class TransactionService {
             ),
           );
         }
-        logError(response.body);
         return (
           <TransactionModel>[],
           e,
         );
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "getTransactionHistory request"));
       return (
         <TransactionModel>[],
         ErrorModel(
@@ -88,10 +91,15 @@ class TransactionService {
         body: model.toJson(),
         headers: headers,
       );
+      logInfo(LoggerInfo(response.request, "createTransaction request"));
+      logInfo(LoggerInfo(model.toJson(), "createTransaction request body"));
+      logInfo(LoggerInfo(headers, "createTransaction request header "));
       if (response.statusCode == 200 || response.statusCode == 201) {
+        //save
+        logInfo(LoggerInfo(response, "createTransaction response"));
         return null;
       } else {
-        logError(response.body);
+        logError(LoggerInfo(response, "createTransaction response"));
         final e = ErrorModel.fromRawJson(response.body);
         if (e.message == "Token không hợp lệ") {
           localStorage.removeUser();
@@ -104,7 +112,7 @@ class TransactionService {
         return e;
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "createTransaction request"));
       return ErrorModel(
         message: e.toString(),
       );

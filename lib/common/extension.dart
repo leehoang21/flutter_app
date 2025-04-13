@@ -1,7 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/contant.dart';
+import 'package:http/http.dart';
 
 import 'base_bloc.dart';
+
+extension ResponseExtension on Response {
+  String string() {
+    return '''
+    Response{
+      statusCode: $statusCode,
+      request: ${request?.toString()},
+      headers: $headers,
+      body: $body,
+      isRedirect: $isRedirect,
+      persistentConnection: $persistentConnection,
+      reasonPhrase: $reasonPhrase,
+    
+''';
+  }
+}
+
+extension BaseResponseExtension on BaseResponse {
+  String string() {
+    return '''
+    Response{
+      statusCode: $statusCode,
+      request: ${request?.toString()},
+      headers: $headers,
+      isRedirect: $isRedirect,
+      persistentConnection: $persistentConnection,
+      reasonPhrase: $reasonPhrase,
+    
+''';
+  }
+}
 
 extension ContextExtension on BuildContext {
   void showSnackbar(

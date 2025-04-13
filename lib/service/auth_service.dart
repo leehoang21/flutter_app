@@ -22,26 +22,31 @@ class AuthService {
         uri,
         body: user.toJson(true),
       );
+      logInfo(LoggerInfo(response.request, "signUp request"));
+      logInfo(LoggerInfo(user.toJson(true), "signUp request body"));
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         var userModel = UserModel.fromRawJson(response.body);
         userModel = userModel.copyWith(
             user: userModel.user.copyWith(
           password: user.password,
         ));
+        logInfo(LoggerInfo(userModel, "signUp response"));
+
         await localStorage.writeUser(userModel);
         return (
           userModel,
           null,
         );
       } else {
-        logError(response.body);
+        logError(LoggerInfo(response, "signUp response"));
         return (
           UserModel(user: User.empty(), token: ''),
           ErrorModel.fromRawJson(response.body),
         );
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "signUp request"));
       return (
         UserModel(user: user, token: ''),
         ErrorModel(
@@ -55,13 +60,16 @@ class AuthService {
       String username, String password) async {
     try {
       final uri = Uri.parse('$baseUrl/auth/login');
+      final body = {
+        'username': username,
+        'password': password,
+      };
       final response = await client.post(
         uri,
-        body: {
-          'username': username,
-          'password': password,
-        },
+        body: body,
       );
+      logInfo(LoggerInfo(response.request, "signIn request"));
+      logInfo(LoggerInfo(body, "signIn request body"));
       if (response.statusCode == 200 || response.statusCode == 201) {
         var userModel = UserModel.fromRawJson(response.body);
 
@@ -69,20 +77,21 @@ class AuthService {
             user: userModel.user.copyWith(
           password: password,
         ));
+        logInfo(LoggerInfo(userModel, "signIn response"));
         await localStorage.writeUser(userModel);
         return (
           userModel,
           null,
         );
       } else {
-        logError(response.body);
+        logError(LoggerInfo(response, "signIn response"));
         return (
           UserModel(user: User.empty(), token: ''),
           ErrorModel.fromRawJson(response.body),
         );
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "signIn request"));
       return (
         UserModel(user: User.empty(), token: ''),
         ErrorModel(
@@ -111,6 +120,11 @@ class AuthService {
         },
         headers: headers,
       );
+      logInfo(LoggerInfo(response.request, "changePassword request"));
+      logInfo(LoggerInfo(headers, "changePassword request header "));
+      logInfo(LoggerInfo({
+        "newPassword": password,
+      }, "changePassword request body"));
       if (response.statusCode == 200 || response.statusCode == 201) {
         //notification
         serviceApp?.notificationConfig.show(Notification(
@@ -118,13 +132,14 @@ class AuthService {
           body: '${user.user.password} -> $password',
         ));
         //save
+        logInfo(LoggerInfo(user, "changePassword response"));
         await localStorage.writeUser(user.copyWith(
             user: user.user.copyWith(
           password: password,
         )));
         return null;
       } else {
-        logError(response.body);
+        logError(LoggerInfo(response, "changePassword response"));
         final e = ErrorModel.fromRawJson(response.body);
         if (e.message == "Token không hợp lệ") {
           localStorage.removeUser();
@@ -137,7 +152,7 @@ class AuthService {
         return e;
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "changePassword request"));
       return ErrorModel(
         message: e.toString(),
       );
@@ -163,10 +178,17 @@ class AuthService {
         },
         headers: headers,
       );
+      logInfo(LoggerInfo(response.request, "changePincode request"));
+      logInfo(LoggerInfo(headers, "changePincode request header "));
+      logInfo(LoggerInfo({
+        "newPinCode": pin,
+      }, "changePincode request body"));
       if (response.statusCode == 200 || response.statusCode == 201) {
+        //save
+        logInfo(LoggerInfo(response, "changePincode response"));
         return null;
       } else {
-        logError(response.body);
+        logError(LoggerInfo(response, "changePincode response"));
         final e = ErrorModel.fromRawJson(response.body);
         if (e.message == "Token không hợp lệ") {
           localStorage.removeUser();
@@ -179,7 +201,7 @@ class AuthService {
         return e;
       }
     } on Exception catch (e) {
-      logError(e);
+      logError(LoggerInfo(e, "changePincode request"));
       return ErrorModel(
         message: e.toString(),
       );

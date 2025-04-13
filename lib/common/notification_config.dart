@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter_app/common/log.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Notification {
@@ -44,10 +43,6 @@ class NotificationConfig {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle notification tap
-        logInfo('Notification tapped: ${response.payload}');
-      },
     );
   }
 
